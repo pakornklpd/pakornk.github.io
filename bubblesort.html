@@ -1,1 +1,1569 @@
+<!DOCTYPE html>
+<html lang="th">
 
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Bubble Sort Animation</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #0b0f14;
+            color: #e6edf3;
+            font-family:
+                Arial,
+                "Noto Sans Thai",
+                sans-serif;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 5px 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8b949e;
+            margin-bottom: 20px;
+        }
+
+        /* =========================
+           Control Panel
+           ========================= */
+
+        .controls {
+            background: #11161d;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+
+            padding: 15px;
+
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+
+            align-items: center;
+        }
+
+        input {
+            background: #0d1117;
+            color: white;
+
+            border: 1px solid #30363d;
+
+            border-radius: 8px;
+
+            padding: 10px;
+
+            font-size: 15px;
+        }
+
+        button {
+            border: none;
+
+            border-radius: 8px;
+
+            padding: 10px 15px;
+
+            background: #238636;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 14px;
+        }
+
+        button:hover {
+            filter: brightness(1.2);
+        }
+
+        button.secondary {
+            background: #30363d;
+        }
+
+        /* =========================
+           Main Layout
+           ========================= */
+
+        .layout {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 15px;
+
+            margin-top: 15px;
+        }
+
+        .panel {
+
+            background: #11161d;
+
+            border: 1px solid #30363d;
+
+            border-radius: 14px;
+
+            padding: 15px;
+        }
+
+        /* =========================
+           Code
+           ========================= */
+
+        .code {
+
+            background: #0d1117;
+
+            border-radius: 10px;
+
+            overflow: auto;
+
+            height: 500px;
+        }
+
+        .code-title {
+
+            padding: 12px;
+
+            border-bottom:
+                1px solid #30363d;
+
+            color: #58a6ff;
+
+            font-weight: bold;
+        }
+
+        .line {
+
+            display: grid;
+
+            grid-template-columns:
+                45px 1fr;
+
+            padding:
+                2px 8px;
+
+            font-family:
+                Consolas,
+                monospace;
+
+            font-size: 14px;
+
+            line-height: 1.65;
+
+            white-space: pre;
+        }
+
+        .line-number {
+
+            color: #6e7681;
+
+            text-align: right;
+
+            padding-right: 10px;
+        }
+
+        /* บรรทัดที่กำลังทำงาน */
+
+        .line.active {
+
+            background: #3b2f00;
+
+            border-left:
+                4px solid #f2cc60;
+        }
+
+        .line.active
+        .line-number {
+
+            color: #f2cc60;
+        }
+
+        /* =========================
+           Chart
+           ========================= */
+
+        .chart {
+
+            height: 330px;
+
+            display: flex;
+
+            align-items: flex-end;
+
+            justify-content: center;
+
+            gap: 10px;
+
+            padding:
+                30px 10px 30px;
+
+            border-bottom:
+                1px solid #30363d;
+        }
+
+        .bar-wrapper {
+
+            height: 100%;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: flex-end;
+
+            align-items: center;
+
+            min-width: 40px;
+        }
+
+        .bar {
+
+            width: 38px;
+
+            border-radius:
+                6px 6px 0 0;
+
+            background: #8b949e;
+
+            position: relative;
+
+            transition:
+                height .3s,
+                background .2s,
+                transform .2s;
+        }
+
+        .bar span {
+
+            position: absolute;
+
+            top: -25px;
+
+            width: 100%;
+
+            text-align: center;
+
+            font-weight: bold;
+        }
+
+        /* คู่ที่กำลังเปรียบเทียบ */
+
+        .bar.compare {
+
+            background: #00c2ff;
+
+            transform:
+                translateY(-5px);
+        }
+
+        /* คู่ที่ Swap */
+
+        .bar.swap {
+
+            background: #ff7b72;
+
+            transform:
+                translateY(-5px);
+        }
+
+        /* เรียงแล้ว */
+
+        .bar.sorted {
+
+            background: #3fb950;
+        }
+
+        .index {
+
+            color: #6e7681;
+
+            font-size: 11px;
+
+            margin-top: 5px;
+        }
+
+        /* =========================
+           Status
+           ========================= */
+
+        .status {
+
+            background: #0d1117;
+
+            border:
+                1px solid #30363d;
+
+            border-radius: 10px;
+
+            padding: 12px;
+
+            margin-top: 10px;
+
+            line-height: 1.6;
+        }
+
+        .status strong {
+
+            color: #f2cc60;
+        }
+
+        /* =========================
+           Variables
+           ========================= */
+
+        .variables {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 7px;
+
+            margin-top: 10px;
+        }
+
+        .variable {
+
+            background: #0d1117;
+
+            border:
+                1px solid #30363d;
+
+            border-radius: 8px;
+
+            text-align: center;
+
+            padding: 8px;
+
+            color: #8b949e;
+
+            font-size: 12px;
+        }
+
+        .variable b {
+
+            display: block;
+
+            color: #79c0ff;
+
+            font-size: 18px;
+
+            margin-top: 3px;
+        }
+
+        /* =========================
+           Complexity
+           ========================= */
+
+        .complexity {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 10px;
+
+            margin-top: 15px;
+        }
+
+        .complexity-card {
+
+            background: #0d1117;
+
+            border:
+                1px solid #30363d;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            padding: 12px;
+        }
+
+        .complexity-card b {
+
+            display: block;
+
+            font-size: 22px;
+
+            margin-top: 5px;
+        }
+
+        /* =========================
+           Responsive
+           ========================= */
+
+        @media(max-width: 850px) {
+
+            .layout {
+
+                grid-template-columns: 1fr;
+            }
+
+            .variables {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .complexity {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>
+        🫧 Bubble Sort
+    </h1>
+
+    <div class="subtitle">
+
+        Bubble Sort — Code + Animation + Step-by-Step
+
+    </div>
+
+
+    <!-- =========================
+         Controls
+         ========================= -->
+
+    <div class="controls">
+
+        <label>
+            Array:
+        </label>
+
+        <input
+            id="arrayInput"
+            value="5,3,8,4,2,7,1,6"
+            style="min-width:260px"
+        >
+
+        <button onclick="resetSort()">
+            🔄 Reset
+        </button>
+
+        <button onclick="nextStep()">
+            ⏭ Next Step
+        </button>
+
+        <button
+            id="startButton"
+            onclick="toggleAnimation()">
+
+            ▶ Start
+
+        </button>
+
+        <button
+            class="secondary"
+            onclick="randomArray()">
+
+            🎲 Random
+
+        </button>
+
+        <label>
+
+            Speed
+
+            <input
+                id="speed"
+                type="range"
+                min="100"
+                max="1200"
+                value="500"
+            >
+
+        </label>
+
+    </div>
+
+
+    <!-- =========================
+         Main
+         ========================= -->
+
+    <div class="layout">
+
+
+        <!-- CODE -->
+
+        <div class="panel">
+
+            <div class="code">
+
+                <div class="code-title">
+
+                    JavaScript —
+                    bubbleSort.js
+
+                </div>
+
+                <div id="codeContainer"></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ANIMATION -->
+
+        <div class="panel">
+
+            <h3>
+                ▶ การทำงานของโค้ด
+            </h3>
+
+            <div
+                id="chart"
+                class="chart">
+            </div>
+
+
+            <div
+                id="status"
+                class="status">
+
+                <strong>
+                    Ready
+                </strong>
+
+                <br>
+
+                กด Next Step เพื่อเริ่ม
+
+            </div>
+
+
+            <!-- Variables -->
+
+            <div class="variables">
+
+                <div class="variable">
+
+                    pass
+
+                    <b id="passValue">
+                        0
+                    </b>
+
+                </div>
+
+
+                <div class="variable">
+
+                    i
+
+                    <b id="iValue">
+                        0
+                    </b>
+
+                </div>
+
+
+                <div class="variable">
+
+                    arr[i]
+
+                    <b id="aValue">
+                        -
+                    </b>
+
+                </div>
+
+
+                <div class="variable">
+
+                    arr[i+1]
+
+                    <b id="bValue">
+                        -
+                    </b>
+
+                </div>
+
+
+                <div class="variable">
+
+                    swapped
+
+                    <b id="swappedValue">
+                        false
+                    </b>
+
+                </div>
+
+
+                <div class="variable">
+
+                    Step
+
+                    <b id="stepValue">
+                        0
+                    </b>
+
+                </div>
+
+
+                <div class="variable">
+
+                    Comparisons
+
+                    <b id="comparisonValue">
+                        0
+                    </b>
+
+                </div>
+
+
+                <div class="variable">
+
+                    Swaps
+
+                    <b id="swapValue">
+                        0
+                    </b>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         Big O
+         ========================= -->
+
+    <div class="panel">
+
+        <h2>
+            Complexity
+        </h2>
+
+        <div class="complexity">
+
+            <div class="complexity-card">
+
+                Best Case
+
+                <b>
+                    O(n)
+                </b>
+
+            </div>
+
+
+            <div class="complexity-card">
+
+                Average Case
+
+                <b>
+                    O(n²)
+                </b>
+
+            </div>
+
+
+            <div class="complexity-card">
+
+                Worst Case
+
+                <b>
+                    O(n²)
+                </b>
+
+            </div>
+
+
+            <div class="complexity-card">
+
+                Space
+
+                <b>
+                    O(1)
+                </b>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ==================================================
+   Bubble Sort Source Code
+   ================================================== */
+
+const sourceCode = [
+
+    "function bubbleSort(arr) {",
+
+    "    let n = arr.length;",
+
+    "    let swapped = false;",
+
+    "",
+
+    "    for (let pass = 0; pass < n - 1; pass++) {",
+
+    "        swapped = false;",
+
+    "",
+
+    "        for (let i = 0; i < n - 1 - pass; i++) {",
+
+    "",
+
+    "            if (arr[i] > arr[i + 1]) {",
+
+    "",
+
+    "                [arr[i], arr[i + 1]] =",
+
+    "                    [arr[i + 1], arr[i]];",
+
+    "",
+
+    "                swapped = true;",
+
+    "            }",
+
+    "        }",
+
+    "",
+
+    "        if (!swapped) break;",
+
+    "    }",
+
+    "",
+
+    "    return arr;",
+
+    "}"
+
+];
+
+
+/* ==================================================
+   สร้าง Code Editor
+   ================================================== */
+
+const codeContainer =
+    document.getElementById(
+        "codeContainer"
+    );
+
+
+sourceCode.forEach(
+    (line, index) => {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+        div.className = "line";
+
+        div.id =
+            "line-" + (index + 1);
+
+        div.innerHTML =
+
+            `<span class="line-number">
+                ${index + 1}
+            </span>
+
+            <span>
+                ${escapeHTML(line)}
+            </span>`;
+
+        codeContainer.appendChild(div);
+
+    }
+);
+
+
+function escapeHTML(text) {
+
+    return text
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;");
+
+}
+
+
+/* ==================================================
+   Highlight Code
+   ================================================== */
+
+function highlightLine(lineNumber) {
+
+    document
+        .querySelectorAll(".line")
+        .forEach(
+            line =>
+                line.classList.remove(
+                    "active"
+                )
+        );
+
+
+    const line =
+        document.getElementById(
+            "line-" + lineNumber
+        );
+
+
+    if (line) {
+
+        line.classList.add("active");
+
+        line.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    }
+
+}
+
+
+/* ==================================================
+   Variables
+   ================================================== */
+
+let arr = [];
+
+let pass = 0;
+
+let i = 0;
+
+let step = 0;
+
+let swapped = false;
+
+let comparisons = 0;
+
+let swaps = 0;
+
+let finished = false;
+
+let comparing = [];
+
+let swapping = [];
+
+let timer = null;
+
+let playing = false;
+
+
+/* ==================================================
+   Reset
+   ================================================== */
+
+function resetSort() {
+
+    stopAnimation();
+
+
+    arr =
+        document
+            .getElementById(
+                "arrayInput"
+            )
+            .value
+            .split(",")
+            .map(Number)
+            .filter(
+                Number.isFinite
+            );
+
+
+    if (arr.length < 2) {
+
+        arr =
+            [5, 3, 8, 4, 2, 7, 1, 6];
+
+    }
+
+
+    pass = 0;
+
+    i = 0;
+
+    step = 0;
+
+    swapped = false;
+
+    comparisons = 0;
+
+    swaps = 0;
+
+    finished = false;
+
+    comparing = [];
+
+    swapping = [];
+
+
+    highlightLine(1);
+
+
+    setStatus(
+
+        "Ready",
+
+        "เริ่มต้นฟังก์ชัน bubbleSort(arr)"
+
+    );
+
+
+    render();
+
+}
+
+
+/* ==================================================
+   Next Step
+   ================================================== */
+
+function nextStep() {
+
+    if (finished) {
+
+        return;
+
+    }
+
+
+    /*
+        ตรวจสอบว่า Pass ปัจจุบัน
+        เปรียบเทียบครบหรือยัง
+    */
+
+    if (
+        i >=
+        arr.length - 1 - pass
+    ) {
+
+
+        /*
+            ถ้าไม่มีการ Swap
+            แสดงว่า Array เรียงแล้ว
+        */
+
+        if (!swapped) {
+
+            finished = true;
+
+            comparing = [];
+
+            swapping = [];
+
+
+            highlightLine(18);
+
+
+            setStatus(
+
+                "เรียงข้อมูลเสร็จแล้ว",
+
+                "รอบล่าสุดไม่มีการ Swap จึงหยุดการทำงาน"
+
+            );
+
+
+            render();
+
+            return;
+
+        }
+
+
+        /*
+            เริ่ม Pass ใหม่
+        */
+
+        pass++;
+
+        i = 0;
+
+        swapped = false;
+
+        comparing = [];
+
+        swapping = [];
+
+
+        highlightLine(5);
+
+
+        setStatus(
+
+            "เริ่ม Pass ใหม่",
+
+            "ค่าที่มากที่สุดของ Pass ก่อนหน้าถูกส่งไปอยู่ด้านขวาแล้ว"
+
+        );
+
+
+        render();
+
+        return;
+
+    }
+
+
+    /*
+        คู่ที่กำลังเปรียบเทียบ
+    */
+
+    comparing = [
+        i,
+        i + 1
+    ];
+
+    swapping = [];
+
+
+    const a =
+        arr[i];
+
+    const b =
+        arr[i + 1];
+
+
+    comparisons++;
+
+
+    /*
+        Highlight if
+    */
+
+    highlightLine(9);
+
+
+    document
+        .getElementById(
+            "aValue"
+        )
+        .textContent = a;
+
+
+    document
+        .getElementById(
+            "bValue"
+        )
+        .textContent = b;
+
+
+    /*
+        ตรวจสอบว่า
+        arr[i] > arr[i+1]
+    */
+
+    if (a > b) {
+
+
+        /*
+            Swap
+        */
+
+        highlightLine(11);
+
+
+        [
+            arr[i],
+            arr[i + 1]
+        ] =
+        [
+            arr[i + 1],
+            arr[i]
+        ];
+
+
+        swapping = [
+            i,
+            i + 1
+        ];
+
+
+        swapped = true;
+
+        swaps++;
+
+
+        highlightLine(12);
+
+
+        setStatus(
+
+            `${a} > ${b} → Swap`,
+
+            `สลับ arr[${i}] กับ arr[${i + 1}]`
+
+        );
+
+    }
+
+    else {
+
+
+        swapped = false;
+
+
+        setStatus(
+
+            `${a} ≤ ${b} → ไม่ Swap`,
+
+            "เงื่อนไข if เป็น false"
+
+        );
+
+    }
+
+
+    step++;
+
+    i++;
+
+
+    updateVariables();
+
+    render();
+
+}
+
+
+/* ==================================================
+   Render Graph
+   ================================================== */
+
+function render() {
+
+    const chart =
+        document.getElementById(
+            "chart"
+        );
+
+
+    chart.innerHTML = "";
+
+
+    const max =
+        Math.max(...arr);
+
+
+    arr.forEach(
+        (value, index) => {
+
+
+            const wrapper =
+                document.createElement(
+                    "div"
+                );
+
+
+            wrapper.className =
+                "bar-wrapper";
+
+
+            const bar =
+                document.createElement(
+                    "div"
+                );
+
+
+            bar.className =
+                "bar";
+
+
+            /*
+                ความสูง Bar
+            */
+
+            bar.style.height =
+
+                (
+                    value /
+                    max *
+                    85
+                ) + "%";
+
+
+            /*
+                คู่ที่กำลัง Compare
+            */
+
+            if (
+                comparing.includes(
+                    index
+                )
+            ) {
+
+                bar.classList.add(
+                    "compare"
+                );
+
+            }
+
+
+            /*
+                คู่ที่ Swap
+            */
+
+            if (
+                swapping.includes(
+                    index
+                )
+            ) {
+
+                bar.classList.add(
+                    "swap"
+                );
+
+            }
+
+
+            /*
+                สมาชิกด้านขวา
+                ที่เรียงเสร็จแล้ว
+            */
+
+            if (
+                finished ||
+                index >=
+                arr.length - pass
+            ) {
+
+                bar.classList.add(
+                    "sorted"
+                );
+
+            }
+
+
+            bar.innerHTML =
+                `<span>
+                    ${value}
+                </span>`;
+
+
+            wrapper.appendChild(
+                bar
+            );
+
+
+            const indexLabel =
+                document.createElement(
+                    "div"
+                );
+
+
+            indexLabel.className =
+                "index";
+
+
+            indexLabel.textContent =
+                index;
+
+
+            wrapper.appendChild(
+                indexLabel
+            );
+
+
+            chart.appendChild(
+                wrapper
+            );
+
+        }
+    );
+
+
+    updateVariables();
+
+}
+
+
+/* ==================================================
+   Update Variables
+   ================================================== */
+
+function updateVariables() {
+
+    document
+        .getElementById(
+            "passValue"
+        )
+        .textContent =
+        pass;
+
+
+    document
+        .getElementById(
+            "iValue"
+        )
+        .textContent =
+        i;
+
+
+    document
+        .getElementById(
+            "swappedValue"
+        )
+        .textContent =
+        swapped;
+
+
+    document
+        .getElementById(
+            "stepValue"
+        )
+        .textContent =
+        step;
+
+
+    document
+        .getElementById(
+            "comparisonValue"
+        )
+        .textContent =
+        comparisons;
+
+
+    document
+        .getElementById(
+            "swapValue"
+        )
+        .textContent =
+        swaps;
+
+}
+
+
+/* ==================================================
+   Status
+   ================================================== */
+
+function setStatus(
+    title,
+    message
+) {
+
+    document
+        .getElementById(
+            "status"
+        )
+        .innerHTML =
+
+        `<strong>
+            ${title}
+        </strong>
+
+        <br>
+
+        ${message}`;
+
+}
+
+
+/* ==================================================
+   Start / Pause
+   ================================================== */
+
+function toggleAnimation() {
+
+    if (playing) {
+
+        stopAnimation();
+
+    }
+
+    else {
+
+        startAnimation();
+
+    }
+
+}
+
+
+function startAnimation() {
+
+    playing = true;
+
+
+    document
+        .getElementById(
+            "startButton"
+        )
+        .textContent =
+        "⏸ Pause";
+
+
+    timer =
+        setInterval(
+            () => {
+
+                nextStep();
+
+
+                if (finished) {
+
+                    stopAnimation();
+
+                }
+
+            },
+
+            Number(
+                document
+                    .getElementById(
+                        "speed"
+                    )
+                    .value
+            )
+
+        );
+
+}
+
+
+function stopAnimation() {
+
+    playing = false;
+
+
+    clearInterval(
+        timer
+    );
+
+
+    document
+        .getElementById(
+            "startButton"
+        )
+        .textContent =
+        "▶ Start";
+
+}
+
+
+/* ==================================================
+   Random Array
+   ================================================== */
+
+function randomArray() {
+
+    const values = [];
+
+
+    for (
+        let i = 0;
+        i < 8;
+        i++
+    ) {
+
+        values.push(
+            Math.floor(
+                Math.random() *
+                20
+            ) + 1
+        );
+
+    }
+
+
+    document
+        .getElementById(
+            "arrayInput"
+        )
+        .value =
+        values.join(",");
+
+
+    resetSort();
+
+}
+
+
+/* ==================================================
+   Speed
+   ================================================== */
+
+document
+    .getElementById(
+        "speed"
+    )
+    .addEventListener(
+        "input",
+        () => {
+
+            if (playing) {
+
+                stopAnimation();
+
+                startAnimation();
+
+            }
+
+        }
+    );
+
+
+/* ==================================================
+   Start
+   ================================================== */
+
+resetSort();
+
+</script>
+
+</body>
+</html>
